@@ -1,0 +1,36 @@
+require:
+  - rubocop-performance
+  - rubocop-rspec
+
+AllCops:
+  Exclude:
+    - 'bundle/**/*'
+    - 'db/**/*'
+    - 'config/**/*'
+    - 'log/**/*'
+    - 'public/**/*'
+    - 'tmp/**/*'
+    - 'bin/**/*'
+    - 'Gemfile'
+    - 'Gemfile.lock'
+    - 'Rakefile'
+    - 'config.ru'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/LineLength:
+  Max: 100
+
+Style/ExpandPathArguments:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma
