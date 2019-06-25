@@ -7,20 +7,8 @@ class ComputingsController < ApplicationController
       return
     end
 
-    render json: {
-      request_id: computing_params[:request_id].to_i,
-      timestamp: computing_params[:timestamp],
-      result: { title: 'Result', values: calculate_answer }
-    }, status: 200
-  end
-
-  def calculate_answer
-    first_array = computing_params['data'][0]['values']
-    second_array = computing_params['data'][1]['values']
-    first_array.each.with_index do |first_arr_elem, index|
-      value_to_substract = second_array[index]
-      first_array[index] = first_arr_elem - value_to_substract
-    end
+    substractions_array = Compute::SubstractValues.new(computing_params['data']).perform!
+    render json: ComputeSerializer.new(computing_params, substractions_array)
   end
 
   def validation

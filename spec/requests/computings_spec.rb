@@ -84,32 +84,14 @@ RSpec.describe 'Computings', type: :request do
     end
 
     shared_examples 'correct response' do |answer|
-      before do
+      # For performance reasons of specs, all of these checks are in single spec
+      it 'returns success status code and has specific response structure' do
         make_request
-      end
-
-      it 'returns success status code' do
         expect(response.status).to eq 200
-      end
-
-      describe 'with specific response structure' do
-        it 'has passed request_id' do
-          expect(json_response['request_id']).to eq request_id
-        end
-
-        it 'has passed timestamp' do
-          expect(json_response['timestamp']).to eq timestamp
-        end
-
-        describe 'with correct result field' do
-          it 'has correct title' do
-            expect(json_response['result']['title']).to eq 'Result'
-          end
-
-          it 'has correct values' do
-            expect(json_response['result']['values']).to eq answer
-          end
-        end
+        expect(json_response['request_id']).to eq request_id
+        expect(json_response['timestamp']).to eq timestamp
+        expect(json_response['result']['title']).to eq 'Result'
+        expect(json_response['result']['values']).to eq answer
       end
     end
 
