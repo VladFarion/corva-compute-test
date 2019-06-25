@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Computings', type: :request do
+RSpec.describe 'Computations', type: :request do
   describe '/compute/:request_id' do
     subject(:make_request) { post "/compute/#{request_id}", params: params, as: :json }
 
@@ -38,11 +38,9 @@ RSpec.describe 'Computings', type: :request do
       end
     end
 
-    # While this test suite might look excessive, because I don't have a change to ask questions
-    # about task, I have to be prepared for worst case scenario, meaning users can input
-    # whatever they want and ideally we shouldn't break with unhandled error
     context 'when params are invalid' do
       let(:error_text) { 'data is not present or valid' }
+
       context 'when params are empty' do
         let(:params) { {} }
 
@@ -85,7 +83,7 @@ RSpec.describe 'Computings', type: :request do
 
     shared_examples 'correct response' do |answer|
       # For performance reasons of specs, all of these checks are in single spec
-      it 'returns success status code and has specific response structure' do
+      it 'returns success status code and has specific response structure' do # rubocop:disable  Metics/LineLength, RSpec/ExampleLength, RSpec/MultipleExpectations
         make_request
         expect(response.status).to eq 200
         expect(json_response['request_id']).to eq request_id

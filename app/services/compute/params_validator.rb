@@ -1,11 +1,11 @@
-# freeze_string_literal: true
+# frozen_string_literal: true
 
 module Compute
   class ParamsValidator
     Result = Struct.new(:success?, :error)
     SCHEMA = {
       type: 'object',
-      required: ['timestamp', 'data'],
+      required: %w[timestamp data],
       properties: {
         timestamp: {
           type: 'integer',
@@ -15,22 +15,22 @@ module Compute
           maxItems: 2,
           items: {
             type: 'object',
-            required: ['title', 'values'],
+            required: %w[title values],
             properties: {
               title: {
-                type: 'string'
+                type: 'string',
               },
               values: {
                 type: 'array',
                 items: {
-                  type: 'number'
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+                  type: 'number',
+                },
+              },
+            },
+          },
+        },
+      },
+    }.freeze
 
     attr_reader :params
 
@@ -39,7 +39,7 @@ module Compute
     end
 
     def validate!
-      check_schema || check_size_limit || check_arrays_length_equality || Result.new(true, nil)
+      check_schema || check_size_limit || check_arrays_length_equality || success
     end
 
     private
@@ -61,7 +61,17 @@ module Compute
       right_values_size = params['data'][1]['values'].size
       return if left_values_size == right_values_size
 
-      failure(I18n.t('compute.params.errors.data_arrays_not_equal', left_values_size: left_values_size, right_values_size: right_values_size))
+      failure(
+        I18n.t(
+          'compute.params.errors.data_arrays_not_equal',
+          left_values_size: left_values_size,
+          right_values_size: right_values_size
+        )
+      )
+    end
+
+    def success
+      Result.new(true, nil)
     end
 
     def failure(reason)

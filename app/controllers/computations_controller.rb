@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ComputingsController < ApplicationController
+class ComputationsController < ApplicationController
   def compute
     unless validation.success?
       render json: { error: validation.error }, status: :bad_request
@@ -11,8 +11,10 @@ class ComputingsController < ApplicationController
     render json: ComputeSerializer.new(computing_params, substractions_array)
   end
 
+  private
+
   def validation
-    @validation_result ||= Compute::ParamsValidator.new(computing_params).validate!
+    @validation ||= Compute::ParamsValidator.new(computing_params).validate!
   end
 
   def computing_params

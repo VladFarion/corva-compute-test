@@ -13,7 +13,10 @@ class ComputeSerializer
     {
       request_id: request_id,
       timestamp: timestamp,
-      result: { title: 'Result', values: compute_result }
+      result: {
+        title: 'Result',
+        values: compute_result,
+      },
     }.to_json
   end
 end
