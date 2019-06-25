@@ -42,69 +42,53 @@ RSpec.describe 'Computings', type: :request do
     # about task, I have to be prepared for worst case scenario, meaning users can input
     # whatever they want and ideally we shouldn't break with unhandled error
     context 'when params are invalid' do
+      let(:error_text) { 'data is not present or valid' }
       context 'when params are empty' do
         let(:params) { {} }
-        let(:error_text) { 'timestamp, data is not present' }
 
         it_behaves_like 'request error'
       end
 
       context 'when params are missing titles' do
         let(:data) { [{ values: part_1_values }, { title: part_2_title, values: part_2_values }] }
-        let(:error_text) { 'title is not present in one of data entries' }
-
-        it_behaves_like 'request error'
-      end
-
-      context 'when params has titles other than "Part 1" and "Part 2"' do
-        let(:part_1_title) { 'Title 1' }
-        let(:part_2_title) { 'Title 2' }
-        let(:error_text) { 'titles in data entries does not match "Part 1", "Part 2" pattern' }
 
         it_behaves_like 'request error'
       end
 
       context 'when params has more then two entries in data param' do
         let(:data) { [{}, {}, {}] }
-        let(:error_text) { 'there are more then 2 data entries' }
 
         it_behaves_like 'request error'
       end
 
       context 'when params contain arrays of different sizes' do
-        let(:part_2_values) { [] }
-        let(:error_text) { 'arrays in data entries have different size. Part 1 has size 6, while part 2 has size 0' }
+        let(:part_2_values) { [1] }
+        let(:error_text) { 'arrays in data entries have different size. Part 1 has size 6, while part 2 has size 1' }
 
         it_behaves_like 'request error'
       end
 
       context 'when array contains not number value' do
         let(:part_2_values) { [6, 2, 3, 'test', 2, 0] }
-        let(:error_text) { 'Not all values from Part 2 are numbers' }
 
         it_behaves_like 'request error'
       end
 
       context 'when arrays are too big' do
-        let(:part_1_values) { Array.new(10_000_000) }
-        let(:part_2_values) { Array.new(10_000_000) }
+        let(:part_1_values) { Array.new(100_000, 2) }
+        let(:part_2_values) { Array.new(100_000, 1) }
         let(:error_text) { 'Your request is too big to process. Please consider splititng it into chunks' }
 
-        it 'returns payload too big status code' do
-          make_request
-          expect(response.status).to eq 413
-        end
-
-        it 'returns specific error message' do
-          make_request
-          expect(json_response[:error]).to eq 'Your request is too big to process. Please consider splititng it into chunks'
-        end
+        it_behaves_like 'request error'
       end
     end
 
     shared_examples 'correct response' do |answer|
-      it 'returns success status code' do
+      before do
         make_request
+      end
+
+      it 'returns success status code' do
         expect(response.status).to eq 200
       end
 
@@ -123,7 +107,7 @@ RSpec.describe 'Computings', type: :request do
           end
 
           it 'has correct values' do
-            expect(json_response['result']['title']).to eq answer
+            expect(json_response['result']['values']).to eq answer
           end
         end
       end
@@ -134,12 +118,12 @@ RSpec.describe 'Computings', type: :request do
         it_behaves_like 'correct response', [-6, 0, 4, 3, -7, 5]
       end
 
-      # context 'when arrays have 100_000 > size > 10_000_000' do
-      #   let(:part_1_values) { Array.new(9_999_999, 2) }
-      #   let(:part_2_values) { Array.new(9_999_999, 1) }
-      #
-      #   it_behaves_like 'correct response', values: Array.new(9_999_999, 1)
-      # end
+      context 'when arrays have big size' do
+        let(:part_1_values) { Array.new(99_999, 3) }
+        let(:part_2_values) { Array.new(99_999, 2) }
+
+        it_behaves_like 'correct response', Array.new(99_999, 1)
+      end
     end
   end
 end
