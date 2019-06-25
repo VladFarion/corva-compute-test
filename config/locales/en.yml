@@ -31,3 +31,9 @@
 
 en:
   hello: "Hello world"
+  compute:
+    params:
+      errors:
+        schema_not_valid: data is not present or valid
+        size_limit_too_big: Your request is too big to process. Please consider splititng it into chunks
+        data_arrays_not_equal: arrays in data entries have different size. Part 1 has size %{left_values_size}, while part 2 has size %{right_values_size}

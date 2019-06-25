@@ -33,40 +33,39 @@ module Compute
     }
 
     attr_reader :params
-    attr_accessor :result
 
     def initialize(params)
       @params = params
-      @result = Result.new(true, nil)
     end
 
     def validate!
-      result = check_schema
-      result = check_size_limit if result.success?
-      result = check_arrays_length_equality if result.success?
-      result
+      check_schema || check_size_limit || check_arrays_length_equality || Result.new(true, nil)
     end
 
     private
 
     def check_schema
-      return result if JSON::Validator.validate(SCHEMA, params.to_h)
+      return if JSON::Validator.validate(SCHEMA, params.to_h)
 
-      Result.new(false, 'data is not present or valid')
+      failure(I18n.t('compute.params.errors.schema_not_valid'))
     end
 
     def check_size_limit
-      return result if params['data'][0]['values'].length < 100_000
+      return if params['data'][0]['values'].length < 100_000
 
-      Result.new(false, 'Your request is too big to process. Please consider splititng it into chunks')
+      failure(I18n.t('compute.params.errors.size_limit_too_big'))
     end
 
     def check_arrays_length_equality
-      first_array_length = params['data'][0]['values'].length
-      second_array_length = params['data'][1]['values'].length
-      return result if first_array_length == second_array_length
+      left_values_size = params['data'][0]['values'].size
+      right_values_size = params['data'][1]['values'].size
+      return if left_values_size == right_values_size
 
-      Result.new(false, "arrays in data entries have different size. Part 1 has size #{first_array_length}, while part 2 has size #{second_array_length}")
+      failure(I18n.t('compute.params.errors.data_arrays_not_equal', left_values_size: left_values_size, right_values_size: right_values_size))
+    end
+
+    def failure(reason)
+      Result.new(false, reason)
     end
   end
 end
